@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel Locations</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Hotel Locations in Midtown</h1>
+    <div id="map"></div>
+    <script>
+        var map = L.map('map').setView([33.779, -84.388], 14);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        fetch('hotels_json.geojson')  // Ensure this file name matches your GeoJSON file
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    onEachFeature: function (feature, layer) {
+                        function formatStatus(value) {
+                            if (value === 'Y') return 'Yes';
+                            if (value === 'N') return 'No';
+                            if (value === null || value === "") return 'Status Unknown';
+                            return value;
+                        }
+
+                        var popupContent = "<b>" + feature.properties.name + "</b><br>" +
+                                           "Address: " + formatStatus(feature.properties.Street_Address) + "<br>" +
+                                           "Number of Rooms: " + formatStatus(feature.properties.Hotel_Rooms) + "<br>" +
+                                           "Number of Stories: " + formatStatus(feature.properties.F__of_Stories) + "<br>" +
+                                           "Stars: " + formatStatus(feature.properties.Stars) + "<br>" +
+                                           "Pet Friendly: " + formatStatus(feature.properties.Pet_Friendly) + "<br>" +
+                                           "Fitness Center: " + formatStatus(feature.properties.Fitness_Center) + "<br>" +
+                                           "Spa: " + formatStatus(feature.properties.Spa) + "<br>" +
+                                           "Pool: " + formatStatus(feature.properties.Pool) + "<br>" +
+                                           "Check-In: " + formatStatus(feature.properties.Check_In) + "<br>" +
+                                           "Check-Out: " + formatStatus(feature.properties.Check_Out);
+                        layer.bindPopup(popupContent);
+                    }
+                }).addTo(map);
+            });
+    </script>
+</body>
+</html>
